@@ -2,7 +2,7 @@ import os, cv2, io, re
 from src.face_rec.extract_cnh import recognize_card
 
 def read_chn_text(img_file):
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/raphasramos/dev/hackathon-serpro/gcloud.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/raphasramos/dev/face_rec/gcloud.json"
 
     """Detects text in the file."""
     from google.cloud import vision
@@ -27,7 +27,7 @@ def read_chn_text(img_file):
     print('Texts:')
 
     infos = {
-        'nome': '',
+        # 'nome': '',
         'cpf': '',
         # 'rg': '',
         'dt_nascimento': ''
@@ -83,7 +83,7 @@ def read_chn_text(img_file):
 
         print('bounds: ', vertices)
 
-    infos['nome'] = ' '.join(nome)
+    # infos['nome'] = ' '.join(nome)
     infos['cpf'] = cpf
     infos['dt_nascimento'] = dt_nascimento
     #infos['rg'] = ' '.join(rg)

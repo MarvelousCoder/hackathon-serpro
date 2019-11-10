@@ -20,12 +20,14 @@ def smile_detection_image(face_model, confidence, smile_model, img):
     detections = face_model.forward()
     i = np.argmax(detections[0, 0, :, 2])
     detection_confidence = detections[0, 0, i, 2]
+    face = img
     if detection_confidence >= confidence:
         box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
         (startX, startY, endX, endY) = box.astype("int")
 
         face = img[startY:endY, startX:endX]
-    if face.shape[0] == 0 or face.shape[1] == 0: face = img
+    if face.shape[0] == 0 or face.shape[1] == 0: 
+        face = img
     gray = cv.cvtColor(face, cv.COLOR_BGR2GRAY) 
     data = cv.resize(gray, (64, 64))
     data = data.astype(np.float32) / 255.
@@ -44,7 +46,8 @@ def smile_detection_webcam(face_model, confidence, smile_model):
         while True:
             last_frame = np.copy(frame_video)
             grabbed, frame_video = cam.read()
-            if frame_video is None or not grabbed: break
+            if frame_video is None or not grabbed: 
+                break
             face = np.copy(frame_video)
             frame = imutils.resize(frame_video, width=600)
             h, w = frame.shape[:2]
@@ -60,7 +63,8 @@ def smile_detection_webcam(face_model, confidence, smile_model):
                 (startX, startY, endX, endY) = box.astype("int")
 
                 face = np.copy(frame[startY:endY, startX:endX])
-            if face.shape[0] == 0 or face.shape[1] == 0: face = np.copy(last_frame)
+            if face.shape[0] == 0 or face.shape[1] == 0: 
+                face = np.copy(last_frame)
 
             # desenha a bounding box do rosto com a probabilidade associada
             gray = cv.cvtColor(face, cv.COLOR_BGR2GRAY) 
@@ -75,7 +79,8 @@ def smile_detection_webcam(face_model, confidence, smile_model):
             out.write(frame)
             cv.imshow("Webcam", frame)
             k = cv.waitKey(1) & 0xFF  
-            if k == ord('q'): break
+            if k == ord('q'): 
+                break
     except KeyboardInterrupt:
         pass
     cam.release()
