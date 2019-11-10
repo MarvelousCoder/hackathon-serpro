@@ -70,7 +70,7 @@ def smile_detection_webcam(face_model, confidence, smile_model):
             y = startY - 10 if startY - 10 > 10 else startY + 10
             cv.rectangle(frame, (startX, startY), (endX, endY),
                 (0, 0, 255), 2)
-            cv.putText(frame, "Sorriso: {}".format(output[0][1]), (startX, y),
+            cv.putText(frame, "Sorriso: {}".format(output[0][1]*100), (startX, y),
                 cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             out.write(frame)
             cv.imshow("Webcam", frame)
@@ -104,8 +104,8 @@ def read_args():
 
 def main():
     detector, confidence, model, img = read_args()
-    # smile_detection_webcam(detector, confidence, model)
-    smile_detection_image(detector, confidence, model, img)
+    smile_detection_webcam(detector, confidence, model)
+    # smile_detection_image(detector, confidence, model, img)
 
 if __name__ == '__main__':
     main()

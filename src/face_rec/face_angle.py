@@ -3,7 +3,9 @@ import argparse
 import cv2
 import face_recognition
 import numpy as np
-from .utils import read_base64_image
+from utils import read_base64_image
+import imutils
+import os
 
 # landmark color mapping for drawing
 LANDMARK_COLOR_MAP = {
@@ -17,6 +19,63 @@ LANDMARK_COLOR_MAP = {
     "top_lip": (0, 255, 127), #Desenha os pontos do labio de amarelo
     "chin": (0, 0, 0) #Desenha os pontos da bochecha de preto
 }
+
+def face_webcam():
+    protoPath = os.path.sep.join(['/home/raphasramos/dev/hackathon-serpro/face_detection_model', "deploy.prototxt"])
+    modelPath = os.path.sep.join(['/home/raphasramos/dev/hackathon-serpro/face_detection_model', "res10_300x300_ssd_iter_140000.caffemodel"])
+    face_model = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
+    cam = cv2.VideoCapture(0)
+    confidence = 0.4
+    threshold = 15 #15% do tamanho da imagem
+    while True:
+        grabbed, image = cam.read()
+        if image is None or not grabbed: 
+            break
+        height, width = image.shape[0:2]
+        #We need, at least a 80x80 pixels face. So, if the image resolution is lower than 160x160 it can't be used
+        if height < 160 or width < 160:
+            print('[ERROR] Image resolution to low, please use a higher resolution image')
+            return None
+        image_flip = cv2.flip(image, 1)
+
+        image_RGB = cv2.cvtColor(image_flip, cv2.COLOR_BGR2RGB)
+
+        face = find_main_face(image_RGB, 'cnn')
+
+        if face is None:
+            print('[ERROR] No faces found in db image')
+        # try to find the landmarks on the detected face
+        landmarks = find_landmarks(image_flip, face)
+        if landmarks is None:
+            print('[ERROR] Couldnt find landmarks on the face image')
+        nose_point, face_projection_point = face_direction_points(landmarks, image_flip)
+        face_still, rec_point1, rec_point2 = face_direction_threshold(nose_point, face_projection_point, width, height, threshold)
+        draw_bbox(image_flip, face)
+        draw_landmarks(image_flip, landmarks)
+        cv2.line(image_flip, nose_point, face_projection_point, (255,0,0), 2)
+        cv2.line(image_flip, nose_point, (width - 1, nose_point[1]), (0,0,255), 2)
+        cv2.rectangle(image_flip, rec_point1, rec_point2, (0,0,255), 2)
+        if face_still:
+            print('[INFO] The face is in the middle')
+        else:
+            angle = face_angle(nose_point, face_projection_point)
+            print('angle: ', angle)
+            if angle > 315 or angle < 45:
+                print('Direita')
+            if angle > 225 and angle < 315:
+                print('Cima')
+            if angle > 45 and angle < 135:
+                print('Baixo')
+            if angle > 135 and angle < 225:
+                print('Esquerda')
+        cv2.imshow('image', image)
+        k = cv2.waitKey(1) & 0xFF  
+        if k == ord('q'): 
+            break
+
+    cam.release()
+    cv2.destroyAllWindows()
+
 
 def Face_angle(args=None, base64image=None):
     """
@@ -76,6 +135,14 @@ def Face_angle(args=None, base64image=None):
     else:
         angle = face_angle(nose_point, face_projection_point)
         print('angle: ', angle)
+        if angle > 315 or angle < 45:
+            print('Direita')
+        if angle > 225 and angle < 315:
+            print('Cima')
+        if angle > 45 and angle < 135:
+            print('Baixo')
+        if angle > 135 and angle < 225:
+            print('Esquerda')
         return angle
 
 def face_direction_threshold(nose_point, face_projection_point, width, height, threshold):
@@ -238,3 +305,4 @@ if __name__ == "__main__":
     args = vars(ap.parse_args())
 
     Face_angle(args=args)
+    face_webcam()
